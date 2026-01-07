@@ -24,11 +24,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
           
-  
+
       - name: Run Semgrep
         uses: semgrep/semgrep-action@v1
         with:
-          config: p/java
+          config: |
+            p/java
+            p/security-audit
+            p/findsecbugs
+
 
 
       - name: Upload Semgrep results
