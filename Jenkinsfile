@@ -6,6 +6,7 @@ pipeline {
     SEMGREP_JSON = 'semgrep-report.json'
   }
 
+
   stages {
     stage('Checkout') {
       steps {
