@@ -29,7 +29,7 @@ pipeline {
 
         sh '''
           set -euo pipefail
-          semgrep scan --config inline-rule.yml --json -o "${SEMGREP_JSON}" .
+          semgrep scan --config inline-rule.yml --json -o "${SEMGREP_JSON}" --error
         '''
       }
       post {
