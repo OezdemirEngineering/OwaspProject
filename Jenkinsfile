@@ -16,6 +16,7 @@ pipeline {
       }
     }
 
+
     stage('SAST (Semgrep)') {
       steps {
         sh '''
