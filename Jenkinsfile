@@ -5,6 +5,7 @@ pipeline {
   environment {
     SEMGREP_JSON = 'semgrep-report.json'
   }
+  
  
 
   stages {
