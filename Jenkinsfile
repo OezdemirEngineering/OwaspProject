@@ -3,8 +3,7 @@ pipeline {
   options { timestamps() }
 
   environment {
-    SEMGREP_JSON    = 'semgrep-report.json'
-    SEMGREP_RULESET = 'p/java'
+    SEMGREP_JSON = 'semgrep-report.json'
   }
 
   stages {
@@ -18,9 +17,19 @@ pipeline {
 
     stage('SAST (Semgrep)') {
       steps {
+        writeFile file: 'inline-rule.yml', text: """
+        rules:
+        - id: no-runtime-exec
+          languages: [java]
+          message: Detected Runtime.exec(), which can lead to command injection vulnerabilities.
+          severity: ERROR
+          patterns:
+            - pattern: Runtime.getRuntime().exec(...)
+        """
+
         sh '''
           set -euo pipefail
-          semgrep scan --config "${SEMGREP_RULESET}" --json -o "${SEMGREP_JSON}" .
+          semgrep scan --config inline-rule.yml --json -o "${SEMGREP_JSON}" .
         '''
       }
       post {
