@@ -4,12 +4,12 @@ pipeline {
 
   environment {
     SEMGREP_JSON    = 'semgrep-report.json'
-    SEMGREP_RULESET = 'p/security-audit'   // z.B. p/owasp-top-ten oder .semgrep/rules.yml
+    SEMGREP_RULESET = 'p/java'  // Das offizielle Java-Ruleset von Semgrep
   }
 
   stages {
     stage('Checkout') {
-      options { skipDefaultCheckout(true) } // verhindert den Auto-Checkout davor
+      options { skipDefaultCheckout(true) }
       steps {
         deleteDir()
         checkout scm
@@ -23,12 +23,25 @@ pipeline {
           semgrep --version
           echo "Using Semgrep ruleset: ${SEMGREP_RULESET}"
           semgrep scan --config "${SEMGREP_RULESET}" --json -o "${SEMGREP_JSON}" . || true
-          ls -lah "${SEMGREP_JSON}" || true
         '''
       }
       post {
         always {
           archiveArtifacts artifacts: "${SEMGREP_JSON}", allowEmptyArchive: true, fingerprint: true
+        }
+      }
+    }
+
+    stage('Fail on Findings') {
+      steps {
+        script {
+          def findings = readJSON file: "${env.SEMGREP_JSON}"
+          def criticalFindings = findings.results.findAll { it.extra.severity == 'ERROR' }
+          if (criticalFindings.size() > 0) {
+            error("Pipeline failed: ${criticalFindings.size()} critical Semgrep finding(s).")
+          } else {
+            echo "No critical findings. Proceeding..."
+          }
         }
       }
     }
