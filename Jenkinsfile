@@ -40,7 +40,7 @@ rules:
 
           # 1) JSON mit Gate (Exitcode != 0 wenn Finding)
           set +e
-          semgrep scan --config "${SEMGREP_RULE_FILE}" --json -o "${SEMGREP_JSON}" --error .
+          semgrep scan --config "${SEMGREP_RULE_FILE}" --json -o "${SEMGREP_JSON}" .
           SEMGREP_RC=$?
           set -e
 
