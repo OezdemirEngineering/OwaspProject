@@ -4,9 +4,15 @@ pipeline {
 
   environment {
     SEMGREP_JSON = 'semgrep-report.json'
+
+    // Semgrep Ruleset:
+    // Beispiele:
+    //   - 'p/security-audit'
+    //   - 'p/owasp-top-ten'
+    //   - '.semgrep/rules.yml'
+    //   - '.semgrep/'  (Ordner)
+    SEMGREP_RULESET = 'p/security-audit'
   }
-  
- 
 
   stages {
     stage('Checkout') {
@@ -16,16 +22,17 @@ pipeline {
       }
     }
 
-
     stage('SAST (Semgrep)') {
       steps {
         sh '''
           set -euo pipefail
           semgrep --version
 
-          # scan whole repo, auto ruleset
+          echo "Using Semgrep ruleset: ${SEMGREP_RULESET}"
+
+          # scan whole repo using chosen ruleset
           # exit code !=0 bei Findings -> wir erzwingen trotzdem Report-Erzeugung
-          semgrep scan --config auto --json -o "${SEMGREP_JSON}" . || true
+          semgrep scan --config "${SEMGREP_RULESET}" --json -o "${SEMGREP_JSON}" . || true
 
           ls -lah "${SEMGREP_JSON}" || true
         '''
